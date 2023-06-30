@@ -1,0 +1,53 @@
+35a36,39
+> static bool i8042_pollkbd = 1;
+> module_param_named(pollkbd, i8042_pollkbd, bool, 0);
+> MODULE_PARM_DESC(pollkbd, "Continuously poll the KBD port instead of relying on interrupts");
+> 
+180a185,202
+> #define POLL_TIME 1
+> static void i8042_poll_func(struct timer_list *timer)
+> {
+> 	unsigned char status;
+> 	unsigned long flags;
+> 
+> 	do {
+> 		spin_lock_irqsave(&i8042_lock, flags);
+> 		status = i8042_read_status();
+> 		spin_unlock_irqrestore(&i8042_lock, flags);
+> 		if (status & I8042_STR_OBF)
+> 			i8042_interrupt(0, NULL);
+> 	} while (status & I8042_STR_OBF);
+> 	mod_timer(timer, jiffies + msecs_to_jiffies(POLL_TIME));
+> }
+> DEFINE_TIMER(poll_timer, i8042_poll_func);
+> 
+> 
+1444c1466,1468
+< 	if (i8042_kbd_irq_registered)
+---
+> 	if (i8042_pollkbd)
+> 		del_timer(&poll_timer);
+> 	else if (i8042_kbd_irq_registered)
+1500,1503c1524,1533
+< 	error = request_irq(I8042_KBD_IRQ, i8042_interrupt, IRQF_SHARED,
+< 			    "i8042", i8042_platform_device);
+< 	if (error)
+< 		goto err_free_port;
+---
+> 	if (i8042_pollkbd) {
+> 		printk(KERN_INFO "i8042: Polling Mode enabled!");
+> 		mod_timer(&poll_timer, msecs_to_jiffies(POLL_TIME));
+> 	}
+> 	else {
+> 		error = request_irq(I8042_KBD_IRQ, i8042_interrupt, IRQF_SHARED,
+> 				    "i8042", i8042_platform_device);
+> 		if (error)
+> 			goto err_free_port;
+> 	}
+1513c1543,1546
+< 	free_irq(I8042_KBD_IRQ, i8042_platform_device);
+---
+> 	if (i8042_pollkbd)
+> 		del_timer(&poll_timer);
+> 	else
+> 		free_irq(I8042_KBD_IRQ, i8042_platform_device);
