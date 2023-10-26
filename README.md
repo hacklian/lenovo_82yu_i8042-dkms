@@ -18,35 +18,37 @@ These patches have been tested and are compatible with the following Linux kerne
 
 To make the keyboard of your Lenovo V15 G4 AMN notebook work on Linux, follow these steps:
 
-1. Clone this repository to your local machine:
+1. Install the DSDT Patches from https://github.com/hacklian/lenovo_82yu_dsdt_patches
+
+2. Clone this repository to your local machine:
 ```bash
 git clone git@github.com:hacklian/lenovo_82yu_i2c_hid-dkms.git
 ```
 
-2. Change into the project directory:
+3. Change into the project directory:
 ```bash
 cd lenovo_82yu_i2c_hid-dkms
 ```
 
-3. Run the build.sh script to build the kernel module for your specific kernel version:
+4. Run the build.sh script to build the kernel module for your specific kernel version:
 ```bash
 ./build.sh --kernel-version 6.5
 ```
 If you omit the kernel version, the build script will create a version for the currently running kernel.
 
 
-4. After the build process is complete, you can install the built module using dkms. Run the following command to install the module:
+5. After the build process is complete, you can install the built module using dkms. Run the following command to install the module:
 ```bash
 sudo dkms install ./dist/{KERNEL_VERSION}
 ```
 
-5. Run DKMS Autoinstall and recreate the ramdisk
+6. Run DKMS Autoinstall and recreate the ramdisk
 ```bash
 sudo dkms autoinstall
 sudo mkinitcpio -P
 ```
 
-6. Reboot your system to apply the changes:
+7. Reboot your system to apply the changes:
 ```bash
 sudo reboot now
 ```
