@@ -20,6 +20,7 @@ These patches have been tested and are compatible with the following Linux kerne
 - Linux Kernel 6.2
 - Linux Kernel 6.3
 - Linux Kernel 6.4
+- Linux Kernel <6.5.10
 
 ## Usage
 
